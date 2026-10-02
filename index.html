@@ -97,6 +97,22 @@ h3.sec{color:var(--b);margin:22px 0 10px}
 @supports not selector(::-webkit-scrollbar){*{scrollbar-width:thin;scrollbar-color:var(--sbh) var(--sbt)}}
 .act{white-space:nowrap}
 .act .sm{display:inline-flex;align-items:center;justify-content:center;height:34px;min-width:34px;padding:0 12px;margin:0 6px 0 0;vertical-align:middle}
+td img.zoom{cursor:zoom-in;transition:.15s}
+td img.zoom:hover{transform:scale(1.08)}
+a.tel{color:var(--b);font-weight:700;text-decoration:none;border-bottom:1px dashed var(--b);white-space:nowrap}
+dialog#pv{background:#000;border:3px solid #fff;border-radius:16px;padding:0;width:fit-content;height:fit-content;max-width:none;max-height:none;overflow:hidden;outline:none;box-shadow:0 10px 40px #000a}
+dialog#pv:focus,dialog#pv:focus-visible{outline:none}
+dialog#pv::backdrop{background:#000c}
+#pvImg{display:block;max-width:none;cursor:zoom-out}
+#pvCap{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 10px;text-align:center;color:#fff;font-weight:700;background:linear-gradient(transparent,#000b)}
+.mtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 4px}
+.mtile{border:2px solid var(--bd);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;background:var(--c);color:var(--t);font:inherit}
+.mtile.sel{border-color:var(--b2);box-shadow:0 0 0 2px var(--b2) inset}
+.mtile .lg{display:block;border-radius:8px;padding:10px 0;color:#fff;font-weight:800;margin-bottom:6px}
+.lg.bk{background:#e2136e}.lg.ng{background:linear-gradient(90deg,#f7941d,#ee2a24)}.lg.rk{background:#8c3494}
+.paybox{background:var(--l);border-radius:10px;padding:10px 14px;margin:6px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.paybox b{font-size:1.25rem;letter-spacing:1px}
+textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;font:inherit;background:var(--c);color:var(--t)}
 </style>
 </head>
 <body>
@@ -124,7 +140,7 @@ h3.sec{color:var(--b);margin:22px 0 10px}
     <div class="feat">
       <div class="card"><b>সদস্য নিবন্ধন</b>অনলাইনে সদস্য ফরম পূরণ করে সহজেই সংঘের সদস্য হোন।</div>
       <div class="card"><b>মাসিক জমার হিসাব</b>কোন মাসে কত টাকা জমা দিয়েছেন এবং এ পর্যন্ত মোট কত, সব এক জায়গায়।</div>
-      <div class="card"><b>নিজের প্রোফাইল</b>ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করে নিজের হিসাব রাখুন।</div>
+      <div class="card"><b>নিজের প্রোফাইল</b>মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করে নিজের হিসাব রাখুন।</div>
     </div>
     <div class="card about">
       <h2>আমাদের সম্পর্কে</h2>
@@ -146,7 +162,7 @@ h3.sec{color:var(--b);margin:22px 0 10px}
       <label>পিতার নাম</label><input name="father" required>
       <label>ঠিকানা</label><input name="address" required>
       <div class="row">
-        <div><label>মোবাইল নং</label><input name="mobile" type="tel" required></div>
+        <div><label>মোবাইল নং (এটি দিয়েই লগইন করবেন)</label><input name="mobile" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" required></div>
         <div><label>জন্ম তারিখ (দিন / মাস / বছর)</label><div class="dob"></div></div>
       </div>
       <div class="row">
@@ -157,7 +173,6 @@ h3.sec{color:var(--b);margin:22px 0 10px}
         <div><label>পেশা</label><input name="job" required></div>
       </div>
       <label>আদায় টাকা</label><input name="amount" type="number" min="0" placeholder="টাকা">
-      <label>ইমেইল (লগইনের জন্য)</label><input name="email" type="email" required>
       <label>পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><div class="pw"><input name="password" type="password" minlength="6" required><button type="button" class="eye" onclick="togglePw(this)" title="দেখান/লুকান"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <p class="hint">অ্যাডমিন আগে আপনাকে সদস্য হিসেবে যোগ করে থাকলে, অ্যাডমিন যে নাম, পিতার নাম, মোবাইল নং ও জন্ম তারিখ দিয়েছেন হুবহু সেগুলোই দিন। তাহলে আপনার আগের সব জমার হিসাব নতুন অ্যাকাউন্টে চলে আসবে।</p>
       <button class="btn" type="submit">সদস্য হিসেবে নিবন্ধন করুন</button>
@@ -165,7 +180,7 @@ h3.sec{color:var(--b);margin:22px 0 10px}
 
     <form id="logForm" class="hide">
       <h2>সদস্য লগইন</h2>
-      <label>ইমেইল</label><input name="email" type="email" required>
+      <label>মোবাইল নম্বর</label><input name="mobile" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" required autocomplete="username">
       <label>পাসওয়ার্ড</label><div class="pw"><input name="password" type="password" required><button type="button" class="eye" onclick="togglePw(this)" title="দেখান/লুকান"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <button class="btn" type="submit">লগইন</button>
     </form>
@@ -194,6 +209,28 @@ h3.sec{color:var(--b);margin:22px 0 10px}
         <div id="msg2" class="msg"></div>
       </div>
     </div>
+    <h3 class="sec">মাসিক চাঁদা জমা দিন</h3>
+    <form id="reqForm">
+      <p class="hint" style="margin-top:0">ন্যূনতম ৩০ টাকা পাঠাতে হবে, এর বেশি যত ইচ্ছা। টাকার পরিমাণ নিজে লিখতে পারেন। না লিখলেও চলবে, কারণ TrxID থেকে অ্যাডমিন যাচাই করলে পাঠানো টাকা নিজে থেকেই আপনার হিসাবে যোগ হবে।</p>
+      <label>বিকাশ / নগদ / রকেটে সরাসরি পাঠান</label>
+      <div class="paybox"><div><b id="payNo">01307127527</b><br><small>Towshik Rahman</small></div><button type="button" class="sm" onclick="copyNo(this)">নম্বর কপি করুন</button></div>
+      <label>মাধ্যম বাছাই করুন</label>
+      <div class="mtiles">
+        <button type="button" class="mtile sel" data-m="bkash" onclick="pickMethod('bkash')"><span class="lg bk">bKash</span>bKash</button>
+        <button type="button" class="mtile" data-m="nagad" onclick="pickMethod('nagad')"><span class="lg ng">Nagad</span>Nagad</button>
+        <button type="button" class="mtile" data-m="rocket" onclick="pickMethod('rocket')"><span class="lg rk">Rocket</span>Rocket</button>
+      </div>
+      <label>যে নম্বর থেকে পাঠিয়েছেন</label><input name="sender" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" required>
+      <label>Transaction ID (TrxID)</label><input name="trx" placeholder="যেমন: 9AK3XXXXXX" maxlength="20" style="text-transform:uppercase" required>
+      <div class="row">
+        <div><label>টাকার পরিমাণ (ঐচ্ছিক, সর্বনিম্ন ৩০)</label><input name="amount" type="number" min="30" step="1" placeholder="লিখতে পারেন, না লিখলেও চলবে"></div>
+        <div><label>কোন মাসের জন্য</label><input name="month" type="month" required></div>
+      </div>
+      <button class="btn" type="submit">জমা দিন</button>
+      <div id="msg5" class="msg"></div>
+    </form>
+    <h3 class="sec">আমার পেমেন্ট অনুরোধ</h3>
+    <div class="tw"><table class="mini"><thead><tr><th>মাস</th><th>টাকা</th><th>মাধ্যম</th><th>অবস্থা</th></tr></thead><tbody id="myR"></tbody></table></div>
     <h3 class="sec">মাসিক জমার হিসাব</h3>
     <div class="stats">
       <div class="stat"><b id="myT">0</b>মোট জমা (টাকা)</div>
@@ -207,7 +244,7 @@ h3.sec{color:var(--b);margin:22px 0 10px}
   <!-- Admin -->
   <section id="admin" class="card hide">
     <h2>অ্যাডমিন প্যানেল</h2>
-    <div class="tabs"><button id="aT1" class="on" onclick="aTab(1)">সদস্য তালিকা</button><button id="aT2" onclick="aTab(2)">টাকা রিসিপ্ট</button></div>
+    <div class="tabs"><button id="aT1" class="on" onclick="aTab(1)">সদস্য তালিকা</button><button id="aT2" onclick="aTab(2)">টাকা রিসিপ্ট</button><button id="aT3" onclick="aTab(3)">পেমেন্ট অনুরোধ</button></div>
     <div id="vList">
     <div class="stats">
       <div class="stat"><b id="sN">0</b>মোট সদস্য</div>
@@ -233,6 +270,13 @@ h3.sec{color:var(--b);margin:22px 0 10px}
         <button onclick="openAdd()">+ নতুন সদস্য</button>
       </div>
       <div class="tw"><table class="mini" style="min-width:520px"><thead><tr><th>সিরিয়াল</th><th>নাম</th><th>মোবাইল</th><th>টাকা</th><th></th></tr></thead><tbody id="rtb"></tbody></table></div>
+    </div>
+    <div id="vReq" class="hide">
+      <p class="hint" style="margin:0 0 10px">আপনার ফোনে বিকাশ/নগদ/রকেটের "টাকা পাওয়ার" SMS কপি করে এখানে পেস্ট করুন (একসাথে অনেকগুলো দেওয়া যায়)। SMS-এ TrxID ও প্রেরকের নম্বর মিললে টাকার পরিমাণ SMS থেকেই নিজে থেকে পড়ে নেওয়া হবে এবং অনুরোধ গৃহীত হয়ে জমার হিসাবে যুক্ত হবে।</p>
+      <textarea id="smsBox" rows="4" placeholder="এখানে SMS পেস্ট করুন..."></textarea>
+      <button class="btn" type="button" style="margin-top:8px" onclick="smsMatch()">SMS মিলিয়ে গ্রহণ করুন</button>
+      <div id="smsOut" class="msg" style="white-space:pre-line;text-align:left"></div>
+      <div class="tw"><table style="min-width:820px"><thead><tr><th>সদস্য</th><th>মোবাইল</th><th>মাধ্যম</th><th>প্রেরকের নম্বর</th><th>TrxID</th><th>টাকা</th><th>মাস</th><th>অবস্থা</th><th></th></tr></thead><tbody id="qtb"></tbody></table></div>
     </div>
     <button class="btn alt" onclick="showHome()">হোম পেজ</button>
     <details class="set"><summary>অ্যাকাউন্ট সেটিংস (ইউজারনেম / পাসওয়ার্ড পরিবর্তন)</summary>
@@ -277,6 +321,11 @@ h3.sec{color:var(--b);margin:22px 0 10px}
       <button id="cNo" class="btn alt" type="button" style="margin-top:8px">বাতিল</button>
     </div>
   </dialog>
+
+  <dialog id="pv" onclick="this.close()">
+    <img id="pvImg" alt="ছবি">
+    <div id="pvCap"></div>
+  </dialog>
 </main>
 <footer>© জালালপুর হাসিমুখ সংঘ</footer>
 
@@ -302,27 +351,31 @@ function tab(w){
 $("signForm").addEventListener("submit", async e => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(e.target));
+  const mob = normMobile(f.mobile);
+  if (!validMob(mob)) return show($("msg"), "সঠিক মোবাইল নম্বর দিন (যেমন 01712345678)", false);
   const btn = e.target.querySelector("button"); btn.disabled = true;
   const { data, error } = await db.auth.signUp({
-    email: f.email, password: f.password,
-    options: { data: { name:f.name, father_name:f.father, address:f.address, mobile:f.mobile,
+    email: mobEmail(mob), password: f.password,
+    options: { data: { name:f.name, father_name:f.father, address:f.address, mobile:mob,
       dob:f.dob, blood_group:f.blood, occupation:f.job, amount:f.amount || 0 } }
   });
   btn.disabled = false;
-  if (error) return show($("msg"), error.message, false);
-  if (data.session) { loadProfile(); }
-  else { show($("msg"), "নিবন্ধন সফল! ইমেইলে আসা লিংকে কনফার্ম করে লগইন করুন।", true); tab("log"); show($("msg"), "নিবন্ধন সফল! ইমেইল কনফার্ম করে লগইন করুন।", true); }
+  if (error) return show($("msg"), /already/i.test(error.message) ? "এই মোবাইল নম্বর দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন।" : error.message, false);
+  if (data.session) { resetForms(); loadProfile(); }
+  else { tab("log"); show($("msg"), "নিবন্ধন সফল! মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন।", true); }
 });
 
 $("logForm").addEventListener("submit", async e => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(e.target));
-  const { error } = await db.auth.signInWithPassword({ email:f.email, password:f.password });
+  const mob = normMobile(f.mobile);
+  if (!validMob(mob)) return show($("msg"), "সঠিক মোবাইল নম্বর দিন (যেমন 01712345678)", false);
+  const { error } = await db.auth.signInWithPassword({ email:mobEmail(mob), password:f.password });
   if (error) {
     const m = error.message || "";
-    return show($("msg"), /not confirmed/i.test(m) ? "ইমেইল কনফার্ম করা হয়নি। ইনবক্স/স্প্যাম চেক করে লিংকে ক্লিক করুন।" : /invalid login/i.test(m) ? "ইমেইল বা পাসওয়ার্ড ভুল, অথবা এই ইমেইল দিয়ে সাইন আপ করা হয়নি।" : m, false);
+    return show($("msg"), /not confirmed/i.test(m) ? "অ্যাকাউন্ট কনফার্ম হয়নি। অ্যাডমিনের সাথে যোগাযোগ করুন।" : /invalid login/i.test(m) ? "মোবাইল নম্বর বা পাসওয়ার্ড ভুল, অথবা এই নম্বর দিয়ে সাইন আপ করা হয়নি।" : m, false);
   }
-  loadProfile();
+  resetForms(); loadProfile();
 });
 
 async function loadProfile(){
@@ -335,7 +388,7 @@ async function loadProfile(){
   if (error || !m) { authed = false; await db.auth.signOut(); return show($("msg"), "লগইন হয়েছে কিন্তু প্রোফাইল পাওয়া যায়নি" + (error ? ": " + error.message : "") , false); }
   $("auth").classList.add("hide"); $("dash").classList.remove("hide");
   const rows = [["সদস্য নাম",m.name],["পিতার নাম",m.father_name],["ঠিকানা",m.address],["মোবাইল",m.mobile],
-    ["জন্ম তারিখ",fmtD(m.dob)],["রক্তের গ্রুপ",m.blood_group],["পেশা",m.occupation],["আদায় টাকা",m.amount+" টাকা"],["ইমেইল",m.email]];
+    ["জন্ম তারিখ",fmtD(m.dob)],["রক্তের গ্রুপ",m.blood_group],["পেশা",m.occupation],["আদায় টাকা",m.amount+" টাকা"]];
   $("info").innerHTML = "";
   rows.forEach(([k,v]) => {
     const dt = document.createElement("dt"), dd = document.createElement("dd");
@@ -344,7 +397,8 @@ async function loadProfile(){
   if (m.photo_url) $("pPhoto").src = m.photo_url;
   const { data:mp } = await db.from("payments").select("month,amount").eq("member_id", user.id).order("month", { ascending:false });
   showMyPays(mp || []);
-}
+  loadMyReqs(user.id);
+  }
 
 $("file").addEventListener("change", async e => {
   const file = e.target.files[0]; if (!file) return;
@@ -364,6 +418,7 @@ $("file").addEventListener("change", async e => {
 
 async function logout(){
   await db.auth.signOut();
+  resetForms();
   authed = false; showHome();
 }
 
@@ -371,13 +426,30 @@ db.auth.getSession().then(({ data }) => { if (data.session) loadProfile(); });
 
 // ===== Admin =====
 let all=[],editId=null;
+const telNum=s=>String(s||"").replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d)).replace(/[^\d+]/g,"");
+function telTd(mobile){
+  const td=document.createElement("td");
+  if(mobile){const a=document.createElement("a");a.className="tel";a.href="tel:"+telNum(mobile);a.textContent=mobile;td.append(a);}
+  else td.textContent="-";
+  return td;
+}
+function showPhoto(url,name){
+  const im=$("pvImg"), d=$("pv"); $("pvCap").textContent=name||"";
+  im.style.width=im.style.height=""; im.removeAttribute("src");
+  im.onload=()=>{
+    const k=Math.min(innerWidth*0.9/im.naturalWidth, innerHeight*0.8/im.naturalHeight, 2);
+    im.style.width=Math.round(im.naturalWidth*k)+"px"; im.style.height=Math.round(im.naturalHeight*k)+"px";
+    if(!d.open) d.showModal();
+  };
+  im.src=url;
+}
 async function loadAdmin(){
   const { data:{ user } } = await db.auth.getUser();
   const { data:a } = await db.from("admins").select("username").eq("id", user.id).maybeSingle();
   $("aUser").value = (a && a.username) || "";
   const {data,error}=await db.from("members").select("*").order("created_at",{ascending:true});
   if(error) return show($("msg3"),error.message,false);
-  all=data; all.forEach((m,i)=>m.sl=i+1); await loadPays(); renderAdmin(); renderRcp();
+  all=data; all.forEach((m,i)=>m.sl=i+1); await loadPays(); await loadReqs(); renderAdmin(); renderRcp();
 }
 let pays=[],payId=null;
 const bn=n=>Number(n||0).toLocaleString("bn-BD");
@@ -407,9 +479,9 @@ function renderAdmin(){
     const cell=v=>{const td=document.createElement("td");td.textContent=v??"-";tr.append(td);return td;};
     cell(bn(m.sl));
     const tp=document.createElement("td");
-    if(m.photo_url){const im=document.createElement("img");im.src=m.photo_url;tp.append(im);} else tp.textContent="-";
+    if(m.photo_url){const im=document.createElement("img");im.src=m.photo_url;im.className="zoom";im.alt=m.name||"";im.title="বড় করে দেখুন";im.onclick=()=>showPhoto(m.photo_url,m.name);tp.append(im);} else tp.textContent="-";
     tr.append(tp);
-    cell(m.name);cell(m.father_name);cell(m.mobile);cell(m.address);cell(m.blood_group);cell(m.occupation);
+    cell(m.name);cell(m.father_name);tr.append(telTd(m.mobile));cell(m.address);cell(m.blood_group);cell(m.occupation);
     const mp=pays.filter(p=>p.member_id===m.id);
     cell(bn(mp.reduce((s,p)=>s+Number(p.amount),0)));
     const ms=mp.filter(p=>p.month===mon);
@@ -485,7 +557,7 @@ async function delMember(id,name){
 }
 function exportCSV(){
   const mon=($("pm").value||curMon())+"-01";
-  const cols=[["name","নাম"],["father_name","পিতার নাম"],["address","ঠিকানা"],["mobile","মোবাইল"],["dob","জন্ম তারিখ"],["blood_group","রক্তের গ্রুপ"],["occupation","পেশা"],["email","ইমেইল"]];
+  const cols=[["name","নাম"],["father_name","পিতার নাম"],["address","ঠিকানা"],["mobile","মোবাইল"],["dob","জন্ম তারিখ"],["blood_group","রক্তের গ্রুপ"],["occupation","পেশা"]];
   const esc=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
   const head=cols.map(c=>c[1]).concat(["মোট জমা","জমা ("+mLabel(mon.slice(0,7))+")"]);
   const rows=[head.map(esc).join(",")].concat(all.map(m=>{
@@ -507,7 +579,7 @@ $("admForm").addEventListener("submit", async e => {
   if (!em) return show($("msg"), "ইউজারনেম বা পাসওয়ার্ড ভুল হয়েছে", false);
   const { error } = await db.auth.signInWithPassword({ email: em, password: f.p });
   if (error) return show($("msg"), /not confirmed/i.test(error.message) ? "অ্যাডমিন অ্যাকাউন্ট কনফার্ম করা হয়নি (Auto Confirm করুন)" : "ইউজারনেম বা পাসওয়ার্ড ভুল হয়েছে", false);
-  loadProfile();
+  resetForms(); loadProfile();
 });
 $("setForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -562,9 +634,8 @@ function setDob(box,iso){
 }
 buildDob();
 function aTab(n){
-  $("vList").classList.toggle("hide",n!==1); $("vRcp").classList.toggle("hide",n!==2);
-  $("aT1").classList.toggle("on",n===1); $("aT2").classList.toggle("on",n===2);
-  if(n===2) renderRcp();
+  [["vList",1,"aT1"],["vRcp",2,"aT2"],["vReq",3,"aT3"]].forEach(([v,i,b])=>{$(v).classList.toggle("hide",n!==i);$(b).classList.toggle("on",n===i);});
+  if(n===2) renderRcp(); if(n===3) renderReqs();
 }
 function openAdd(){
   editId=null; const f=$("edForm"); f.reset(); setDob(f.querySelector(".dob"),"");
@@ -577,7 +648,7 @@ function renderRcp(){
     const live=last && now-new Date(last.created_at)<864e5;
     const tr=document.createElement("tr");
     const c=v=>{const td=document.createElement("td");td.textContent=v??"-";tr.append(td);};
-    c(bn(m.sl)); c(m.name); c(m.mobile);
+    c(bn(m.sl)); c(m.name); tr.append(telTd(m.mobile));
     const ti=document.createElement("td"), inp=document.createElement("input");
     inp.type="number"; inp.min="1"; inp.placeholder="টাকা"; inp.style.minWidth="110px"; if(live) inp.value=last.amount;
     ti.append(inp); tr.append(ti);
@@ -596,13 +667,131 @@ async function saveRcp(mid,inp,pid,b){
   if(r.error) return alert(r.error.message);
   await loadPays(); renderRcp(); renderAdmin(); show($("msg3"),"টাকা সংরক্ষিত হয়েছে",true);
 }
-function askConfirm(msg){
+function askConfirm(msg,yes="হ্যাঁ, মুছুন",danger=true){
   return new Promise(res=>{
-    const d=$("cdlg"); $("cTxt").textContent=msg; d.returnValue="n";
+    const d=$("cdlg"); $("cTxt").textContent=msg; $("cYes").textContent=yes; $("cYes").className="btn "+(danger?"out":""); d.returnValue="n";
     $("cYes").onclick=()=>d.close("y"); $("cNo").onclick=()=>d.close("n");
     d.onclose=()=>res(d.returnValue==="y");
     d.showModal();
   });
+}
+function normMobile(s){
+  s=String(s||"").replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d)).replace(/\D/g,"");
+  if(s.startsWith("880")) s=s.slice(2);
+  if(s.length===10&&s.startsWith("1")) s="0"+s;
+  return s;
+}
+const validMob=m=>/^01[3-9]\d{8}$/.test(m);
+const mobEmail=m=>m+"@members.hashimukh.app";
+const MNAME={bkash:"bKash",nagad:"Nagad",rocket:"Rocket"}, SNAME={pending:"অপেক্ষমাণ",approved:"গৃহীত",rejected:"বাতিল"};
+let payMethod="bkash", reqs=[];
+function pickMethod(m){payMethod=m;document.querySelectorAll(".mtile").forEach(t=>t.classList.toggle("sel",t.dataset.m===m));}
+function copyNo(b){
+  const t=b.textContent;
+  navigator.clipboard.writeText($("payNo").textContent.trim()).then(()=>{b.textContent="কপি হয়েছে";setTimeout(()=>b.textContent=t,1500);}).catch(()=>{});
+}
+$("reqForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const f=Object.fromEntries(new FormData(e.target)), box=$("msg5");
+  const sn=normMobile(f.sender); if(!validMob(sn)) return show(box,"সঠিক মোবাইল নম্বর দিন",false);
+  const amt=f.amount?Number(f.amount):null;
+  if(amt!==null&&(!Number.isFinite(amt)||amt<30)) return show(box,"টাকা লিখলে সর্বনিম্ন ৩০ টাকা হতে হবে",false);
+  const trx=f.trx.trim().toUpperCase(); if(!/^[A-Z0-9]{6,20}$/.test(trx)) return show(box,"সঠিক TrxID দিন (শুধু ইংরেজি অক্ষর ও সংখ্যা)",false);
+  const btn=e.target.querySelector("button[type=submit]"); btn.disabled=true;
+  const { data:{ user } } = await db.auth.getUser();
+  const { error } = await db.from("payment_requests").insert({member_id:user.id,method:payMethod,sender_number:sn,trx_id:trx,amount:amt,month:f.month+"-01"});
+  btn.disabled=false;
+  if(error) return show(box,error.code==="23505"?"এই TrxID আগেই ব্যবহার করা হয়েছে":error.message,false);
+  e.target.reset(); e.target.elements.month.value=curMon();
+  show(box,"জমা অনুরোধ পাঠানো হয়েছে। অ্যাডমিন যাচাই করলে আপনার হিসাবে যুক্ত হবে।",true);
+  loadMyReqs(user.id);
+});
+async function loadMyReqs(uid){
+  const { data } = await db.from("payment_requests").select("*").eq("member_id",uid).order("created_at",{ascending:false});
+  const tb=$("myR"); tb.innerHTML="";
+  (data||[]).forEach(r=>{
+    const tr=document.createElement("tr");
+    const c=v=>{const td=document.createElement("td");td.textContent=v;tr.append(td);return td;};
+    c(mLabel(r.month)); c(r.amount==null?"যাচাই হচ্ছে":bn(r.amount)); c(MNAME[r.method]);
+    const st=c(SNAME[r.status]); st.className=r.status==="approved"?"ok":r.status==="rejected"?"no":"";
+    tb.append(tr);
+  });
+  if(!tb.children.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="এখনো কোনো অনুরোধ নেই";tr.append(td);tb.append(tr);}
+}
+async function loadReqs(){
+  const { data } = await db.from("payment_requests").select("*").order("created_at",{ascending:false}).limit(500);
+  reqs=data||[];
+  const n=reqs.filter(r=>r.status==="pending").length;
+  $("aT3").textContent="পেমেন্ট অনুরোধ"+(n?" ("+bn(n)+")":"");
+}
+function renderReqs(){
+  const tb=$("qtb"); tb.innerHTML="";
+  const list=[...reqs].sort((a,b)=>(a.status==="pending"?0:1)-(b.status==="pending"?0:1)||b.created_at.localeCompare(a.created_at));
+  list.forEach(r=>{
+    const m=all.find(x=>x.id===r.member_id)||{}; let amtIn=null;
+    const tr=document.createElement("tr");
+    const c=v=>{const td=document.createElement("td");td.textContent=v??"-";tr.append(td);return td;};
+    c(m.name); tr.append(telTd(m.mobile)); c(MNAME[r.method]); c(r.sender_number); c(r.trx_id);
+    if(r.amount==null&&r.status==="pending"){const td=document.createElement("td"),i=document.createElement("input");i.type="number";i.min="30";i.placeholder="টাকা";i.style.minWidth="90px";td.append(i);tr.append(td);amtIn=i;}
+    else c(r.amount==null?"-":bn(r.amount));
+    c(mLabel(r.month));
+    const st=c(SNAME[r.status]); st.className=r.status==="approved"?"ok":r.status==="rejected"?"no":"";
+    const ta=document.createElement("td"); ta.className="act";
+    if(r.status==="pending"){
+      const a=document.createElement("button");a.className="sm";a.textContent="গ্রহণ";a.onclick=()=>decideReq(r,true,amtIn?amtIn.value:null);
+      const x=document.createElement("button");x.className="sm d";x.textContent="বাতিল";x.onclick=()=>decideReq(r,false);
+      ta.append(a,x);
+    }
+    tr.append(ta); tb.append(tr);
+  });
+  if(!list.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=9;td.textContent="কোনো পেমেন্ট অনুরোধ নেই";tr.append(td);tb.append(tr);}
+}
+async function decideReq(r,ok,val){
+  let amt=r.amount;
+  if(ok&&amt==null){ amt=Number(val); if(!(amt>=30)) return alert("টাকার পরিমাণ লিখুন (কমপক্ষে ৩০)"); }
+  const yes=await askConfirm(ok?bn(amt)+" টাকা (TrxID: "+r.trx_id+") পেয়েছেন? গ্রহণ করলে জমার হিসাবে যুক্ত হবে।":"এই অনুরোধ বাতিল করবেন?", ok?"হ্যাঁ, গ্রহণ করুন":"হ্যাঁ, বাতিল করুন", !ok);
+  if(!yes) return;
+  const res= ok ? await db.rpc("admin_approve_request",{rid:r.id,p_amount:r.amount==null?amt:null}) : await db.from("payment_requests").update({status:"rejected"}).eq("id",r.id);
+  if(res.error) return alert(res.error.message);
+  await loadPays(); await loadReqs(); renderReqs(); renderAdmin(); renderRcp();
+}
+document.querySelector("#reqForm [name=month]").value=curMon();
+async function smsMatch(){
+  const out=$("smsOut"), text=$("smsBox").value.trim();
+  if(!text) return show(out,"আগে SMS পেস্ট করুন",false);
+  const chunks=text.split(/\n\s*\n+/).flatMap(c=>c.split(/(?=you have received|money received)/i)).map(c=>c.trim()).filter(Boolean);
+  const pend=reqs.filter(r=>r.status==="pending");
+  let ok=0, missing=0, sum=0; const warn=[];
+  for(const r of pend){
+    const trx=String(r.trx_id).toUpperCase();
+    const ch=chunks.find(c=>c.toUpperCase().includes(trx));
+    if(!ch){missing++;continue;}
+    if(!/receiv/i.test(ch)){warn.push(r.trx_id+": এটি টাকা পাওয়ার SMS নয়");continue;}
+    const am=ch.replace(/,/g,"").match(/(?:Tk\.?|BDT|৳)\s*(\d+(?:\.\d+)?)/i);
+    const amt=am?Number(am[1]):NaN;
+    if(!Number.isFinite(amt)){warn.push(r.trx_id+": SMS-এ টাকার পরিমাণ পাওয়া যায়নি");continue;}
+    if(r.amount!=null&&Math.abs(amt-Number(r.amount))>=0.01){warn.push(r.trx_id+": SMS-এ টাকা "+bn(amt)+", অনুরোধে "+bn(r.amount));continue;}
+    if(amt<30){warn.push(r.trx_id+": টাকা "+bn(amt)+", সর্বনিম্ন ৩০ টাকা হতে হবে");continue;}
+    const nums=(ch.match(/(?:\+?88)?01[3-9]\d{8}/g)||[]).map(normMobile);
+    if(nums.length&&!nums.includes(r.sender_number)){warn.push(r.trx_id+": প্রেরকের নম্বর মেলেনি");continue;}
+    const res=await db.rpc("admin_approve_request",{rid:r.id,p_amount:r.amount==null?amt:null});
+    if(res.error){warn.push(r.trx_id+": "+res.error.message);continue;}
+    ok++; sum+=amt;
+  }
+  await loadPays(); await loadReqs(); renderReqs(); renderAdmin(); renderRcp();
+  const lines=[bn(ok)+" টি অনুরোধ গৃহীত হয়েছে"+(ok?", মোট "+bn(sum)+" টাকা যোগ হয়েছে।":"।")];
+  if(missing) lines.push(bn(missing)+" টি অনুরোধ এই SMS-গুলোতে পাওয়া যায়নি (অপেক্ষমাণ আছে)।");
+  if(warn.length) lines.push("সতর্কতা:\n"+warn.join("\n"));
+  show(out,lines.join("\n"),ok>0&&!warn.length);
+  if(ok) $("smsBox").value="";
+}
+function resetForms(){
+  ["signForm","logForm","admForm","setForm","reqForm"].forEach(id=>{const f=$(id); if(f) f.reset();});
+  document.querySelectorAll(".pw input").forEach(i=>{i.type="password";});
+  document.querySelectorAll(".pw .eye").forEach(b=>{b.innerHTML=EYE_ON;});
+  document.querySelectorAll("#signForm .dob").forEach(b=>b.upd&&b.upd());
+  const rm=document.querySelector("#reqForm [name=month]"); if(rm) rm.value=curMon();
+  $("msg").className="msg";
 }
 let saved=null;try{saved=localStorage.getItem("theme")}catch(e){}
 applyTheme(saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
