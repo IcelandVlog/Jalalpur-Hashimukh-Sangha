@@ -210,7 +210,7 @@ textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;
       </div>
     </div>
     <h3 class="sec">মাসিক চাঁদা জমা দিন</h3>
-    <form id="reqForm">
+    <div id="payInfo">
       <p class="hint" style="margin-top:0">ন্যূনতম ৩০ টাকা পাঠাতে হবে, এর বেশি যত ইচ্ছা। টাকার পরিমাণ নিজে লিখতে পারেন। না লিখলেও চলবে, কারণ TrxID থেকে অ্যাডমিন যাচাই করলে পাঠানো টাকা নিজে থেকেই আপনার হিসাবে যোগ হবে।</p>
       <label>বিকাশ / নগদ / রকেটে সরাসরি পাঠান</label>
       <div class="paybox"><div><b id="payNo">01307127527</b><br><small>Towshik Rahman</small></div><button type="button" class="sm" onclick="copyNo(this)">নম্বর কপি করুন</button></div>
@@ -220,6 +220,8 @@ textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;
         <button type="button" class="mtile" data-m="nagad" onclick="pickMethod('nagad')"><span class="lg ng">Nagad</span>Nagad</button>
         <button type="button" class="mtile" data-m="rocket" onclick="pickMethod('rocket')"><span class="lg rk">Rocket</span>Rocket</button>
       </div>
+    </div>
+    <form id="reqForm">
       <label>যে নম্বর থেকে পাঠিয়েছেন</label><input name="sender" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" required>
       <label>Transaction ID (TrxID)</label><input name="trx" placeholder="যেমন: 9AK3XXXXXX" maxlength="20" style="text-transform:uppercase" required>
       <div class="row">
@@ -274,8 +276,8 @@ textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;
     <div id="vReq" class="hide">
       <p class="hint" style="margin:0 0 10px">আপনার ফোনে বিকাশ/নগদ/রকেটের "টাকা পাওয়ার" SMS কপি করে এখানে পেস্ট করুন (একসাথে অনেকগুলো দেওয়া যায়)। SMS-এ TrxID ও প্রেরকের নম্বর মিললে টাকার পরিমাণ SMS থেকেই নিজে থেকে পড়ে নেওয়া হবে এবং অনুরোধ গৃহীত হয়ে জমার হিসাবে যুক্ত হবে।</p>
       <textarea id="smsBox" rows="4" placeholder="এখানে SMS পেস্ট করুন..."></textarea>
-      <button class="btn" type="button" style="margin-top:8px" onclick="smsMatch()">SMS মিলিয়ে গ্রহণ করুন</button>
-      <div id="smsOut" class="msg" style="white-space:pre-line;text-align:left"></div>
+      <button class="btn" type="button" style="margin:10px 0 18px" onclick="smsMatch()">SMS মিলিয়ে গ্রহণ করুন</button>
+      <div id="smsOut" class="msg" style="white-space:pre-line;text-align:left;margin:0 0 18px"></div>
       <div class="tw"><table style="min-width:820px"><thead><tr><th>সদস্য</th><th>মোবাইল</th><th>মাধ্যম</th><th>প্রেরকের নম্বর</th><th>TrxID</th><th>টাকা</th><th>মাস</th><th>অবস্থা</th><th></th></tr></thead><tbody id="qtb"></tbody></table></div>
     </div>
     <button class="btn alt" onclick="showHome()">হোম পেজ</button>
@@ -702,7 +704,7 @@ $("reqForm").addEventListener("submit",async e=>{
   const { error } = await db.from("payment_requests").insert({member_id:user.id,method:payMethod,sender_number:sn,trx_id:trx,amount:amt,month:f.month+"-01"});
   btn.disabled=false;
   if(error) return show(box,error.code==="23505"?"এই TrxID আগেই ব্যবহার করা হয়েছে":error.message,false);
-  e.target.reset(); e.target.elements.month.value=curMon();
+  e.target.reset(); e.target.elements.month.value=curMon(); pickMethod(payMethod);
   show(box,"জমা অনুরোধ পাঠানো হয়েছে। অ্যাডমিন যাচাই করলে আপনার হিসাবে যুক্ত হবে।",true);
   loadMyReqs(user.id);
 });
@@ -791,6 +793,7 @@ function resetForms(){
   document.querySelectorAll(".pw .eye").forEach(b=>{b.innerHTML=EYE_ON;});
   document.querySelectorAll("#signForm .dob").forEach(b=>b.upd&&b.upd());
   const rm=document.querySelector("#reqForm [name=month]"); if(rm) rm.value=curMon();
+  pickMethod(payMethod);
   $("msg").className="msg";
 }
 let saved=null;try{saved=localStorage.getItem("theme")}catch(e){}
