@@ -112,6 +112,11 @@ dialog#pv::backdrop{background:#000c}
 .lg.bk{background:#e2136e}.lg.ng{background:linear-gradient(90deg,#f7941d,#ee2a24)}.lg.rk{background:#8c3494}
 .paybox{background:var(--l);border-radius:10px;padding:10px 14px;margin:6px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .paybox b{font-size:1.25rem;letter-spacing:1px}
+.tabs{flex-wrap:wrap}.tabs button{min-width:120px}
+.fstats .stat.red b{color:#c62828}.fstats .stat.grn b{color:#2e7d32}
+.exres{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--l);line-height:1.9;display:none}
+.exres.on{display:block}
+.neg{color:#c62828;font-weight:700}
 textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;font:inherit;background:var(--c);color:var(--t)}
 </style>
 </head>
@@ -246,7 +251,7 @@ textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;
   <!-- Admin -->
   <section id="admin" class="card hide">
     <h2>অ্যাডমিন প্যানেল</h2>
-    <div class="tabs"><button id="aT1" class="on" onclick="aTab(1)">সদস্য তালিকা</button><button id="aT2" onclick="aTab(2)">টাকা রিসিপ্ট</button><button id="aT3" onclick="aTab(3)">পেমেন্ট অনুরোধ</button></div>
+    <div class="tabs"><button id="aT1" class="on" onclick="aTab(1)">সদস্য তালিকা</button><button id="aT2" onclick="aTab(2)">টাকা রিসিপ্ট</button><button id="aT3" onclick="aTab(3)">পেমেন্ট অনুরোধ</button><button id="aT4" onclick="aTab(4)">ফান্ড ও খরচ</button></div>
     <div id="vList">
     <div class="stats">
       <div class="stat"><b id="sN">0</b>মোট সদস্য</div>
@@ -279,6 +284,25 @@ textarea{width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:8px;
       <button class="btn" type="button" style="margin:10px 0 18px" onclick="smsMatch()">SMS মিলিয়ে গ্রহণ করুন</button>
       <div id="smsOut" class="msg" style="white-space:pre-line;text-align:left;margin:0 0 18px"></div>
       <div class="tw"><table style="min-width:820px"><thead><tr><th>সদস্য</th><th>মোবাইল</th><th>মাধ্যম</th><th>প্রেরকের নম্বর</th><th>TrxID</th><th>টাকা</th><th>মাস</th><th>অবস্থা</th><th></th></tr></thead><tbody id="qtb"></tbody></table></div>
+    </div>
+    <div id="vFund" class="hide">
+      <div class="stats fstats">
+        <div class="stat"><b id="fT">0</b>মোট ফান্ড (সদস্যদের জমা)</div>
+        <div class="stat red"><b id="fE">0</b>মোট খরচ হয়েছে</div>
+        <div class="stat grn"><b id="fB">0</b>বর্তমানে মজুদ আছে</div>
+      </div>
+      <form id="exForm">
+        <div class="row">
+          <div><label>খরচের তারিখ</label><input type="date" name="spent_on" required></div>
+          <div><label>খরচের পরিমাণ (টাকা)</label><input type="number" name="amount" min="1" required></div>
+        </div>
+        <label>কী বাবদ খরচ</label><input name="note" placeholder="যেমন: রক্তদান ক্যাম্প, গরিবদের সহায়তা...">
+        <button class="btn" type="submit">খরচ যোগ করুন (ফান্ড থেকে বাদ যাবে)</button>
+        <div id="exRes" class="exres"></div>
+        <div id="msgF" class="msg"></div>
+      </form>
+      <h3 class="sec">খরচের তালিকা</h3>
+      <div class="tw"><table style="min-width:760px"><thead><tr><th>#</th><th>তারিখ</th><th>কী বাবদ</th><th>আগে ছিল</th><th>খরচ (−)</th><th>বাকি আছে</th><th></th></tr></thead><tbody id="etb"></tbody></table></div>
     </div>
     <button class="btn alt" onclick="showHome()">হোম পেজ</button>
     <details class="set"><summary>অ্যাকাউন্ট সেটিংস (ইউজারনেম / পাসওয়ার্ড পরিবর্তন)</summary>
@@ -451,7 +475,7 @@ async function loadAdmin(){
   $("aUser").value = (a && a.username) || "";
   const {data,error}=await db.from("members").select("*").order("created_at",{ascending:true});
   if(error) return show($("msg3"),error.message,false);
-  all=data; all.forEach((m,i)=>m.sl=i+1); await loadPays(); await loadReqs(); renderAdmin(); renderRcp();
+  all=data; all.forEach((m,i)=>m.sl=i+1); await loadPays(); await loadReqs(); await loadExp(); renderAdmin(); renderRcp(); renderFund();
 }
 let pays=[],payId=null;
 const bn=n=>Number(n||0).toLocaleString("bn-BD");
@@ -635,9 +659,60 @@ function setDob(box,iso){
   box.sels[0].value=p[2]?String(parseInt(p[2])):"";box.sels[1].value=p[1]?String(parseInt(p[1])):"";box.sels[2].value=p[0]||"";box.upd();
 }
 buildDob();
+
+/* ===== ফান্ড ও খরচ ===== */
+let exps=[],expErr=null;
+const fundTotal=()=>pays.reduce((s,p)=>s+Number(p.amount||0),0);
+const expTotal=()=>exps.reduce((s,e)=>s+Number(e.amount||0),0);
+async function loadExp(){
+  const {data,error}=await db.from("expenses").select("*").order("created_at",{ascending:true});
+  expErr=error?error.message:null; exps=data||[];
+}
+function renderFund(){
+  const f=$("exForm"); if(f && !f.spent_on.value) f.spent_on.value=new Date().toISOString().slice(0,10);
+  const T=fundTotal(), E=expTotal(), B=T-E;
+  $("fT").textContent=bn(T); $("fE").textContent=bn(E); $("fB").textContent=bn(B);
+  const tb=$("etb"); tb.innerHTML="";
+  if(expErr){ show($("msgF"),"expenses টেবিল পাওয়া যায়নি — আগে Supabase-এ SQL চালান ("+expErr+")",false); }
+  exps.forEach((e,i)=>{
+    const tr=document.createElement("tr");
+    const c=(v,cls)=>{const td=document.createElement("td");td.textContent=v??"-";if(cls)td.className=cls;tr.append(td);};
+    c(bn(i+1)); c(new Date(e.spent_on).toLocaleDateString("bn-BD",{day:"numeric",month:"long",year:"numeric"}));
+    c(e.note||"-"); c(e.balance_before==null?"-":bn(e.balance_before)+" ৳");
+    c("− "+bn(e.amount)+" ৳","neg"); c(e.balance_after==null?"-":bn(e.balance_after)+" ৳");
+    const ta=document.createElement("td"), d=document.createElement("button");
+    d.className="sm d"; d.textContent="মুছুন"; d.onclick=()=>delExp(e); ta.append(d); tr.append(ta); tb.append(tr);
+  });
+  if(!exps.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.textContent="এখনো কোনো খরচ যোগ করা হয়নি";tr.append(td);tb.append(tr);}
+}
+$("exForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const f=ev.target, amt=Number(f.amount.value), btn=f.querySelector("button[type=submit]");
+  if(!(amt>0)) return;
+  const before=fundTotal()-expTotal();
+  if(amt>before) return show($("msgF"),"ফান্ডে মাত্র "+bn(before)+" টাকা আছে, এর বেশি খরচ যোগ করা যাবে না",false);
+  const after=before-amt;
+  btn.disabled=true;
+  const {error}=await db.from("expenses").insert({spent_on:f.spent_on.value,amount:amt,note:f.note.value.trim()||null,balance_before:before,balance_after:after});
+  btn.disabled=false;
+  if(error) return show($("msgF"),error.message,false);
+  $("msgF").className="msg";
+  const r=$("exRes");
+  r.innerHTML="আগে ফান্ডে ছিল: <b>"+bn(before)+" ৳</b><br>এই খরচ (−): <b class='neg'>"+bn(amt)+" ৳</b><br>এখন বাকি আছে: <b>"+bn(after)+" ৳</b><br>মোট খরচ হয়েছে (এ পর্যন্ত): <b>"+bn(expTotal()+amt)+" ৳</b>";
+  r.classList.add("on");
+  f.amount.value=""; f.note.value="";
+  await loadExp(); renderFund();
+});
+async function delExp(e){
+  const yes=await askConfirm(bn(e.amount)+" টাকার এই খরচ মুছলে টাকাটা আবার ফান্ডে ফিরে যাবে। মুছবেন?");
+  if(!yes) return;
+  const {error}=await db.from("expenses").delete().eq("id",e.id);
+  if(error) return alert(error.message);
+  await loadExp(); renderFund();
+}
 function aTab(n){
-  [["vList",1,"aT1"],["vRcp",2,"aT2"],["vReq",3,"aT3"]].forEach(([v,i,b])=>{$(v).classList.toggle("hide",n!==i);$(b).classList.toggle("on",n===i);});
-  if(n===2) renderRcp(); if(n===3) renderReqs();
+  [["vList",1,"aT1"],["vRcp",2,"aT2"],["vReq",3,"aT3"],["vFund",4,"aT4"]].forEach(([v,i,b])=>{$(v).classList.toggle("hide",n!==i);$(b).classList.toggle("on",n===i);});
+  if(n===2) renderRcp(); if(n===3) renderReqs(); if(n===4) renderFund();
 }
 function openAdd(){
   editId=null; const f=$("edForm"); f.reset(); setDob(f.querySelector(".dob"),"");
@@ -667,7 +742,7 @@ async function saveRcp(mid,inp,pid,b){
                 : await db.from("payments").insert({member_id:mid,month:curMon()+"-01",amount:v});
   b.disabled=false;
   if(r.error) return alert(r.error.message);
-  await loadPays(); renderRcp(); renderAdmin(); show($("msg3"),"টাকা সংরক্ষিত হয়েছে",true);
+  await loadPays(); renderRcp(); renderAdmin(); renderFund(); show($("msg3"),"টাকা সংরক্ষিত হয়েছে",true);
 }
 function askConfirm(msg,yes="হ্যাঁ, মুছুন",danger=true){
   return new Promise(res=>{
